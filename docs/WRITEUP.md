@@ -39,13 +39,19 @@ available MCP tool. Adding `await` allowed the unchanged harness to initialize
 the server, list tools, call the secret tool, and write and reread its result.
 This illustrates why a mock failure is not evidence of an agent-discovery bug.
 
-**TODO: replace the panel below with the measured 29-task failure breakdown.**
+The inherited template manifest records 29 rewards, mean **0.491242**, with four
+zeroes and two perfect scores. Two tasks export no required deliverable; two MEP
+generators score zero despite self-check claims. This single upstream run is not
+an evaluation of our changes, and no causal grader diagnostics were exported.
+See `dev_baseline_analysis.md` and its per-task CSV for provenance and evidence.
+
+**TODO: replace the conservative inherited breakdown with our evaluated runs.**
 Record task IDs, rubric shortfalls, supporting trace/artifact references, and
 categories such as missing output, wrong revision, units/code clause, geometry,
 MCP use, and timeout. Separate grader failures from execution/infrastructure
 faults. Include at least one unsuccessful intervention and its evidence.
 
-![TODO: no measured dev-set failure counts yet.](failure-breakdown.png)
+![Inherited baseline (template): conservative shortfall categories, not root causes.](failure-breakdown.png)
 
 **TODO: controlled ablation table.** Compare unchanged Pi, workflow only, and
 workflow plus verification on identical task/model/judge settings and repeated
@@ -123,7 +129,7 @@ output/cache tokens, calls, runtime, verification repairs, and total billed cost
 including judge cost reported separately. Unit and fixture checks establish
 control flow only, not an efficiency advantage.
 
-![TODO: no measured score-cost points yet.](score-vs-cost.png)
+![Inherited baseline (template) recorded mean; agent costs unavailable, so no cost points.](score-vs-cost.png)
 
 **TODO:** plot measured per-task mean score against mean agent cost across
 budget/verification variants, matched tasks and repeats. Report sample sizes,
@@ -134,8 +140,8 @@ plateau location and gains are all **TODO: real runs required**.
 ## 5. Clarity, reproduction and submission gate — 15 points
 
 The architecture distinguishes the sponsored model route from task-side tool
-actions. The cover is `cover.png`. This draft intentionally contains placeholders
-for the two evidence figures; it does **not** yet satisfy the empirical rubric.
+actions. The cover is `cover.png`. Evidence figures now describe only the inherited
+template run; this draft does **not** yet satisfy the empirical rubric.
 
 From the kit directory, run `uv run python -m kit check ../my-harness` with a
 real authorized proxy, then `uv run python eval/run.py ../my-harness` and
@@ -155,7 +161,8 @@ The optional CSV is an explicit normalized export, not a claim to parse native
 kit logs: `config,model,task_id,repeat,score,cost_usd,failure_category`. Supply one
 row per task/repeat/config/model; include failed runs with their actual score
 and incurred agent cost. Use USD and document pricing/judge accounting alongside
-the export. The script averages rows by config/model, labels sample sizes, and
+the export. Blank cost means unrecorded and produces a score-only panel, never
+a zero-cost point. The script averages rows by config/model, labels sample sizes, and
 counts sub-perfect rows by the supplied category (blank becomes `unspecified`).
 Use matched task sets/repeats for comparisons. Without data it draws TODO panels,
 never synthetic observations. **TODO:** replace all placeholders and obtain the

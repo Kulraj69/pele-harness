@@ -5,7 +5,10 @@ Verify EVERY deliverable exists, is non-empty, and has the exact required path,
 filename, format, units, entities, fields, and internally consistent numbers.
 Re-open files and parse applicable IFC/DXF/XLSX/CSV/JSON with Python; recompute
 numeric checks in scripts. Fix gaps and recheck repaired files. Do not count
-empty checks or timeouts as success. Respect task restrictions and the remaining
+syntax-only checks or a second run of the same assumptions as independent proof.
+Check mandatory cases and hard constraints before cost; verify explicitly required
+application-state changes by reading them back, not just describing them in prose.
+Do not count empty checks or timeouts as success. Respect task restrictions and the remaining
 time budget. Then give the final summary of files, key numbers, assumptions,
 and any unresolved limitations. Do not substitute this summary for files.`;
 

@@ -25,6 +25,12 @@ class FigureTests(unittest.TestCase):
             with self.subTest(text=text), self.assertRaises(ValueError):
                 read_results(io.StringIO(text))
 
+    def test_unrecorded_cost_is_not_zero(self):
+        rows = read_results(io.StringIO(HEADER + "baseline (template),m,t1,1,0.5,,other\n"))
+        self.assertIsNone(rows[0]["cost_usd"])
+        with tempfile.TemporaryDirectory() as directory:
+            evidence_figures(Path(directory), rows)
+
     def test_invalid_measurements_are_rejected(self):
         for row in ("x,m,t,1,nan,0,", "x,m,t,1,1,inf,", "x,m,t,1,-1,0,",
                     "x,m,t,1,1,-1,", "x,m,t,1,2,0,", "x,m,t,1,no,0,", "x,m,,1,1,0,"):

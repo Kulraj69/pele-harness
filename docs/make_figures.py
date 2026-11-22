@@ -2,6 +2,7 @@
 
 CSV columns: config,model,task_id,repeat,score,cost_usd,failure_category.
 One row per task/repeat/config/model; costs are agent USD, excluding judge cost.
+Blank cost means unrecorded, never zero; score-only panels are used in that case.
 """
 import argparse
 import csv
@@ -28,10 +29,11 @@ def read_results(source):
             key = tuple(row[name] for name in ("config", "model", "task_id", "repeat"))
             if not all(key) or key in seen:
                 raise ValueError("missing identifiers or duplicate task/repeat")
-            score, cost = float(row["score"]), float(row["cost_usd"])
+            score = float(row["score"])
+            cost = float(row["cost_usd"]) if row["cost_usd"] else None
             if not math.isfinite(score) or not 0 <= score <= 1:
                 raise ValueError("score must be finite and in [0,1]")
-            if not math.isfinite(cost) or cost < 0:
+            if cost is not None and (not math.isfinite(cost) or cost < 0):
                 raise ValueError("cost_usd must be finite and non-negative")
             seen.add(key)
             rows.append({**row, "score": score, "cost_usd": cost})
@@ -116,20 +118,34 @@ def evidence_figures(output, rows):
     groups = defaultdict(list)
     for row in rows:
         groups[(row["config"], row["model"])].append(row)
-    fig, ax = canvas("Measured score versus agent cost")
+    missing_cost = any(row["cost_usd"] is None for row in rows)
+    fig, ax = canvas("Recorded scores · cost unavailable" if missing_cost else "Measured score versus agent cost")
+    score_labels = []
     for (config, model), group in sorted(groups.items()):
         score = sum(row["score"] for row in group) / len(group)
-        cost = sum(row["cost_usd"] for row in group) / len(group)
         tasks = len({row["task_id"] for row in group})
-        ax.scatter(cost, score, s=65, label=f"{config} / {model}: {tasks} tasks, {len(group)} runs")
-    ax.set(xlabel="Mean agent cost per task-run (USD; judge excluded)",
-           ylabel="Mean task score", ylim=(-.03, 1.03))
+        if missing_cost:
+            position = len(score_labels)
+            score_labels.append(f"{config}\n{model}\n{tasks} tasks, {len(group)} runs")
+            ax.bar(position, score, width=.4, color="#527ba0")
+            ax.text(position, score+.025, f"{score:.6f}", ha="center", fontsize=12)
+        else:
+            cost = sum(row["cost_usd"] for row in group) / len(group)
+            ax.scatter(cost, score, s=65, label=f"{config} / {model}: {tasks} tasks, {len(group)} runs")
+    ax.set(ylabel="Mean recorded task score", ylim=(-.03, 1.03))
+    if missing_cost:
+        ax.set_xticks(range(len(score_labels)), score_labels, fontsize=9)
+        fig.subplots_adjust(bottom=.25)
+        fig.text(.5, .04, "Agent cost unrecorded: no score-versus-cost points plotted; blank is not zero.", ha="center", fontsize=10)
+    else:
+        ax.set_xlabel("Mean agent cost per task-run (USD; judge excluded)")
+        ax.legend(fontsize=8, loc="best")
     ax.grid(alpha=.2)
-    ax.legend(fontsize=8, loc="best")
     save(fig, output, "score-vs-cost.png")
 
     counts = Counter(row["failure_category"] or "unspecified" for row in rows if row["score"] < 1)
     fig, ax = canvas("Measured sub-perfect task-runs by category")
+    fig.subplots_adjust(left=.26, bottom=.24)
     if counts:
         labels, values = zip(*sorted(counts.items()))
         ax.barh(labels, values, color="#527ba0")
@@ -138,7 +154,9 @@ def evidence_figures(output, rows):
     else:
         ax.axis("off")
         ax.text(.5, .5, "No sub-perfect scores in supplied rows", ha="center", transform=ax.transAxes)
-    fig.text(.5, .055, "Categories supplied by analyst; shortfalls are not automatically root causes.", ha="center", fontsize=9)
+    series = ", ".join(sorted({row["config"] for row in rows}))
+    fig.text(.5, .09, series, ha="center", fontsize=10)
+    fig.text(.5, .04, "Categories supplied by analyst; shortfalls are not automatically root causes.", ha="center", fontsize=9)
     save(fig, output, "failure-breakdown.png")
 
 

@@ -5,6 +5,10 @@ plumbing, not engineering accuracy or model performance. `artifacts/` contains
 inherited upstream outputs, not outputs from this modified harness. They are
 stale and must be regenerated before submission.
 
+An offline audit of the inherited run, with conservative per-task classifications
+and recorded template-only scores, is in `docs/dev_baseline_analysis.md` and `.csv`.
+It is not an evaluation of this harness's changes; agent costs are unrecorded.
+
 ## Design
 
 The baseline remains Pi 1.1.0 on `google-cloud/claude-opus-5-5`.
