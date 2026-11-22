@@ -2,10 +2,12 @@
 
 Source: `artifacts/manifest.json`, created 2026-10-20T03:33:56Z; template commit
 `6ab05b9f5f256b4ce148c20498b255712fdfbf26`, model `google-cloud/claude-opus-5-5`.
-All 29 recorded rewards belong to that template run (`b96-r1`), not our modified
-harness. The current kit warns that its dev-set revision differs. Mean recorded reward:
+All 29 recorded rewards belong to the inherited template manifest, not our
+modified harness. Run IDs: `b96-r1` (26 tasks), `run3b` (3 tasks).
+The current kit warns that its dev-set revision differs. Mean recorded reward:
 **0.491242**, 4 zeroes, 2 perfect scores.
-This is a descriptive single-run mean, not a replicated benchmark or improvement claim.
+This is a descriptive mean with one observation per task, not a replicated benchmark
+or improvement claim.
 
 ## Method and missing measurements
 

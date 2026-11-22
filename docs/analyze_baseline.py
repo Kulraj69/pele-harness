@@ -4,6 +4,7 @@ import json
 import re
 import statistics
 import zipfile
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -160,14 +161,17 @@ def main():
         writer.writerows(rows)
     scores = [row["score"] for row in rows]
     claims = [row for row in rows if "self-check success" in row["observations"]]
+    run_counts = Counter(row["repeat"] for row in rows)
     report = f"""# Inherited baseline audit — not a run of our harness
 
 Source: `artifacts/manifest.json`, created {manifest['created']}; template commit
 `{manifest['harness']['commit']}`, model `{manifest['harness']['model_api']}`.
-All {len(rows)} recorded rewards belong to that template run (`b96-r1`), not our modified
-harness. The current kit warns that its dev-set revision differs. Mean recorded reward:
+All {len(rows)} recorded rewards belong to the inherited template manifest, not our
+modified harness. Run IDs: {', '.join(f'`{run}` ({count} tasks)' for run, count in sorted(run_counts.items()))}.
+The current kit warns that its dev-set revision differs. Mean recorded reward:
 **{statistics.mean(scores):.6f}**, {scores.count(0.0)} zeroes, {scores.count(1.0)} perfect scores.
-This is a descriptive single-run mean, not a replicated benchmark or improvement claim.
+This is a descriptive mean with one observation per task, not a replicated benchmark
+or improvement claim.
 
 ## Method and missing measurements
 
