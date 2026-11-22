@@ -205,14 +205,15 @@ class Run:
     """
     kind, message = event.get("type"), event.get("message") or {}
     if kind == "message_end" and message.get("role") == "assistant":
-      if message.get("stopReason") != "error":
+      failed = message.get("stopReason") in ("error", "aborted")
+      if not failed:
         self.replies += 1
       blocks = message.get("content") or []
       text = "\n".join(
           b.get("text", "") for b in blocks if b.get("type") == "text"
       )
       calls_tools = any(b.get("type") == "toolCall" for b in blocks)
-      if text.strip() and (not calls_tools or not self.session.final_message):
+      if not failed and text.strip() and (not calls_tools or not self.session.final_message):
         self.session.final_message = text.strip()
       if message.get("stopReason") == "error":
         await self.session.log(
