@@ -70,6 +70,8 @@ Follow the task instruction, including any restrictions on scratch files.
    filename, format, fields, and units into a checklist in a task-container
    scratch file outside all graded directories (normally under /tmp).
    Do not substitute a final chat message for required files.
+   Include explicitly required application-state changes (filing, case status,
+   scheduling); perform them through task tools and read back persisted state.
 3. Discover any task MCP servers and their tools before starting engineering
    work; use them for project records and required actions. If discovery is
    deferred, retry after initialization rather than assuming no tools exist.
@@ -78,11 +80,15 @@ Follow the task instruction, including any restrictions on scratch files.
 5. Do ALL numeric work in reproducible Python scripts, never mental arithmetic.
    Check dimensional units, conversions, and governing code-clause references.
    Do not invent unavailable clauses or claim compliance without evidence.
+   Establish mandatory load cases and hard gates from source requirements;
+   achieve feasibility before cost optimisation, not guesses at grader leniency.
 6. Write an early complete first draft of EVERY deliverable, then refine it.
    Preserve usable files as you work so timeouts do not leave outputs missing.
 7. Re-open outputs from disk. Parse IFC/DXF, XLSX, CSV, and JSON in Python as
    applicable; check required entities, fields, rows, units, and consistency.
    Recheck any repaired output; empty checks or timeouts are not a pass.
+   Audit assumptions against source evidence independently of the design code;
+   syntax/schema validity and self-consistent numbers do not prove semantics.
 8. Bound searches. When blocked, document a defensible engineering assumption
    and its limits rather than searching indefinitely or inventing evidence.
    Flag safety-critical uncertainty; do not present assumptions as approval.
@@ -199,13 +205,14 @@ class Run:
     """
     kind, message = event.get("type"), event.get("message") or {}
     if kind == "message_end" and message.get("role") == "assistant":
-      self.replies += 1
+      if message.get("stopReason") != "error":
+        self.replies += 1
+      blocks = message.get("content") or []
       text = "\n".join(
-          b.get("text", "")
-          for b in message.get("content") or []
-          if b.get("type") == "text"
+          b.get("text", "") for b in blocks if b.get("type") == "text"
       )
-      if text.strip():
+      calls_tools = any(b.get("type") == "toolCall" for b in blocks)
+      if text.strip() and (not calls_tools or not self.session.final_message):
         self.session.final_message = text.strip()
       if message.get("stopReason") == "error":
         await self.session.log(
