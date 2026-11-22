@@ -30,7 +30,14 @@ class ScriptTests(unittest.TestCase):
         blocks, stop = reply({"messages": [{"role": "user", "content": "Create mcp.txt"}], "tools": [{"name": "codemode"}]})
         self.assertEqual(stop, "tool_use")
         self.assertEqual(blocks[0]["name"], "codemode")
-        self.assertIn('searchTools("secret_word")', blocks[0]["input"]["code"])
+        self.assertIn('await searchTools("secret_word")', blocks[0]["input"]["code"])
+
+    def test_mcp_result_without_word_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "no secret word"):
+            reply({"messages": [
+                {"role": "assistant", "content": [{"type": "tool_use", "name": "codemode"}]},
+                {"role": "user", "content": [{"type": "tool_result", "content": "no tools"}]},
+            ]})
 
     def test_verification_followup_reads_output_then_finishes(self):
         body = {"messages": [{"role": "user", "content": "Create hello.txt"}, {"role": "assistant", "content": [{"type": "text", "text": "done"}]}, {"role": "user", "content": "Final engineering verification pass:"}], "tools": [{"name": "read"}]}

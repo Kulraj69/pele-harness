@@ -32,10 +32,11 @@ written. Deferred tools are searched through Pi's `codemode` tool when present.
 Unknown tools, missing MCP tools and failed tool results fail explicitly.
 No task files are accessed by the fixture itself.
 
-The MCP stage still warns: Pi advertises `codemode`, but its first discovery
-returns no `secret_word` tool while MCP initialization/listing is occurring.
-The relay log confirms initialization and listing occurred, but no tools/call
-or output file. We did not change the harness or fabricate the MCP word.
+Pi's `searchTools()` returns a Promise, so codemode scripts must await discovery
+before inspecting matches. The fixture awaits it, calls the discovered tool,
+and writes only the secret returned through the real MCP relay. Pi lists
+configured deferred servers in its system prompt; full catalogs stay out of
+the initial prompt and are discovered on demand.
 
 Tests: `python -m unittest -v test_server` from this directory.
 Keep runtime logs outside the harness repository. Inherited artifact warnings

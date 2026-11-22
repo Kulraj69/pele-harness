@@ -31,7 +31,7 @@ def reply(body):
         name = next((n for n in tools if "secret_word" in n), "")
         if not name and "codemode" in tools:
             name = "codemode"
-            args = {"code": 'const found = searchTools("secret_word"); if (!found.length) throw new Error("No MCP secret_word tool"); console.log(JSON.stringify(await tools[found[0].name]({})));'}
+            args = {"code": 'const found = await searchTools("secret_word"); if (!found.length) throw new Error("No MCP secret_word tool"); console.log(JSON.stringify(await tools[found[0].name]({})));'}
         elif not name:
             raise ValueError("no secret_word tool advertised; available: " + str(list(tools)))
         else:
