@@ -29,6 +29,7 @@ test('disabled, invalid and insufficient-budget cases never queue', () => {
   for (const env of [
     {VERIFICATION_PASSES: '0'}, {VERIFICATION_PASSES: '-1'},
     {VERIFICATION_PASSES: 'invalid'}, {TASK_VERIFICATION_DEADLINE_MS: ''},
+    {VERIFICATION_PASSES: '1.5'}, {VERIFICATION_PASSES: 'Infinity'},
     {TASK_VERIFICATION_DEADLINE_MS: 'NaN'},
     {TASK_VERIFICATION_DEADLINE_MS: '120999'}, {TASK_VERIFICATION_DEADLINE_MS: '0'},
   ]) {
@@ -48,4 +49,13 @@ test('missing deadline fails closed', () => {
   let handler;
   registerVerification({on: (_, cb) => { handler = cb; }, sendUserMessage: () => assert.fail('unexpected follow-up')}, {});
   handler();
+});
+
+test('an end at or after the process cutoff never queues verification', () => {
+  for (const now of [500000, 500001, 600000]) {
+    let handler;
+    registerVerification({on: (_, cb) => { handler = cb; }, sendUserMessage: () => assert.fail('late follow-up')},
+      {TASK_VERIFICATION_DEADLINE_MS: '500000'}, () => now);
+    handler();
+  }
 });

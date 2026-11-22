@@ -2,7 +2,7 @@
 
 **DRAFT — not submission-ready; not yet evaluated on the dev set.**
 
-Project Links: **TODO: public repository URL.**
+Project Links: https://github.com/Kulraj69/pele-harness
 Submission commit: **TODO: pin the final 40-character SHA after real evaluation.**
 Target: `google-cloud/claude-opus-5-5`, using Pi 1.1.0.
 
@@ -28,7 +28,7 @@ new dev-task run or a diagnosis of the original agent's reasoning. Public
 starter-notebook notes also motivate post-repair checks; their reported outcomes
 are not our measurements.
 
-The implemented response is to extract a deliverable checklist into scratch
+The workflow asks the agent to extract a deliverable checklist into scratch
 space outside graded directories, produce complete drafts early, then reopen
 and check outputs. This should reduce missing-file failures, but could also
 waste time polishing a wrong interpretation. It is a hypothesis to test.
@@ -41,7 +41,7 @@ This illustrates why a mock failure is not evidence of an agent-discovery bug.
 
 The inherited template manifest records 29 rewards, mean **0.491242**, with four
 zeroes and two perfect scores. Two tasks export no required deliverable; two MEP
-generators score zero despite self-check claims. This single upstream run is not
+generators score zero despite self-check claims. This inherited manifest is not
 an evaluation of our changes, and no causal grader diagnostics were exported.
 See `dev_baseline_analysis.md` and its per-task CSV for provenance and evidence.
 
@@ -73,7 +73,7 @@ network access beyond the evaluator's declared MCP route.
 The workflow requests recursive inventory, exact output requirements, the latest
 governing revisions/addenda, and explicit assumptions. It requires numeric work
 in Python scripts, dimensional checks, and evidence for code-clause references.
-It requests early complete drafts and reopens applicable IFC/DXF/XLSX/CSV/JSON
+It requests early complete drafts and reopening applicable IFC/DXF/XLSX/CSV/JSON
 outputs to check entities, fields and internal consistency. Bounded searching
 must end in a documented assumption, with safety-critical uncertainty flagged.
 These are model instructions, **not deterministic enforcement or engineering
@@ -117,10 +117,16 @@ The design retains one agent rather than a parallel planner/worker ensemble.
 Thinking stays `max`; Pi's default compaction remains unchanged. Verification is
 enabled by `VERIFICATION_PASSES="1"`, disabled by `"0"`, and capped at one even
 for larger positive values. It runs only with at least 120 seconds before the
-deadline passed by Python, which reserves 90 seconds for shutdown. An absent or
+deadline passed by Python, which conservatively reserves 90 seconds (short-task
+process reserves can be smaller). An absent or
 invalid deadline skips the pass. This bounds extra agent cycles, not model
 calls or monetary cost; one follow-up can invoke multiple tools/model turns.
 The existing overall task timeout still applies.
+
+Pi's Anthropic adapter marks the system prompt and newest user/tool-result block
+for ephemeral caching. Our static NOTE and appended follow-up retain the earlier
+prefix; actual cache hits and cost savings remain unmeasured. See `ABLATIONS.md`
+for isolated verification-off/on and Claude/Gemini run configurations.
 
 Large MCP catalogs remain deferred; codemode can reduce tool results before
 returning them to the model. These choices aim to limit prompt overhead and

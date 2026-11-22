@@ -32,7 +32,7 @@ It requires at least 120 seconds before the deadline passed by `harness.py`,
 which already reserves 90 seconds for shutdown. Missing/invalid deadlines skip
 verification. It requests an instruction/checklist audit, repairs, rechecking,
 and a final summary; it does not guarantee correctness. Thinking remains `max`;
-Pi's retry and compaction defaults are unchanged.
+The template's retry settings and Pi's compaction defaults are unchanged.
 
 ## Run with the official kit
 
@@ -82,11 +82,19 @@ From this repository:
 ```sh
 node --test verification.test.mjs
 python -m unittest discover -s tools/mockproxy -p 'test_*.py' -v
+uv run --with websockets==15.0.1 python -m unittest test_harness -v
+uv run --with matplotlib==3.10.9 python -m unittest discover -s docs -p 'test_*.py' -v
 ```
 
 Node tests cover exactly-once scheduling, disabled/invalid settings, and deadline
 boundaries. Mock tests cover scripted messages and errors; the kit check exercises
 Anthropic SSE, Pi, Docker, and the WebSocket/file relay.
+
+Submission gaps and source-review results are in
+[`docs/SUBMISSION_CHECKLIST.md`](docs/SUBMISSION_CHECKLIST.md). For future
+authorized verification-off/on and Claude/Gemini experiments, see
+[`docs/ABLATIONS.md`](docs/ABLATIONS.md); host environment variables alone do
+not override the kit's `submission.yaml` configuration.
 
 ## Files
 
