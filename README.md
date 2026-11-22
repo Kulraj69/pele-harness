@@ -70,7 +70,8 @@ MODEL_PROXY_URL=http://localhost:4000 MODEL_PROXY_KEY=offline-mock-only \
 The key is a non-secret fixture value. The kit maps localhost to
 `host.docker.internal`; the fixture binds `0.0.0.0` for Docker access. Do not
 expose it publicly. It scripts file creation and a read on the verification turn.
-MCP discovery may warn while deferred tools initialize.
+The mock awaits Pi's asynchronous deferred MCP discovery; the offline MCP check
+calls the actual task tool and writes its returned secret, not a canned value.
 
 From this repository:
 
